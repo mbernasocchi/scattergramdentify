@@ -30,11 +30,11 @@ from qgis.gui import *
 
 class AreaMapTool (QgsMapTool):
 
-    def __init__(self,canvas):
-        QgsMapTool.__init__( self,canvas )
+    def __init__(self, canvas):
+        QgsMapTool.__init__(self, canvas)
 
-        self.canvas=canvas
-        self.mRubberBand = QgsRubberBand( canvas, True )
+        self.canvas = canvas
+        self.mRubberBand = QgsRubberBand(canvas, True)
 
         self.cursor = QCursor(Qt.PointingHandCursor)
 
@@ -75,14 +75,14 @@ class AreaMapTool (QgsMapTool):
 
     def deactivate(self):
         QgsMapTool.deactivate(self)
-        self.mRubberBand.reset( True )    
+        self.mRubberBand.reset(True)    
         
 
     def restart(self):
         #self.updateProjection()
-        self.mPoints=[]
+        self.mPoints = []
 
-        self.mRubberBand.reset( True );
+        self.mRubberBand.reset(True);
 
         #// re-read color settings
         #QSettings settings;
@@ -96,43 +96,43 @@ class AreaMapTool (QgsMapTool):
 
 
 
-    def canvasPressEvent( self, e ):
+    def canvasPressEvent(self, e):
 
-        if ( e.button() == Qt.LeftButton ):
-            if ( self.mRightMouseClicked ):
+        if (e.button() == Qt.LeftButton):
+            if (self.mRightMouseClicked):
                 self.restart()
 
-            idPoint = self.canvas.getCoordinateTransform().toMapCoordinates( e.x(), e.y() )
+            idPoint = self.canvas.getCoordinateTransform().toMapCoordinates(e.x(), e.y())
         ###mDialog->mousePress( idPoint );
 
 
-    def canvasMoveEvent( self,e ):
+    def canvasMoveEvent(self, e):
 
-        if ( not(self.mRightMouseClicked) ):
-            point = self.canvas.getCoordinateTransform().toMapCoordinates( e.pos().x(), e.pos().y() )
-            self.mRubberBand.movePoint( point )
+        if (not(self.mRightMouseClicked)):
+            point = self.canvas.getCoordinateTransform().toMapCoordinates(e.pos().x(), e.pos().y())
+            self.mRubberBand.movePoint(point)
             #mDialog.mouseMove( point );
 
 
-    def canvasReleaseEvent( self,e):
-        point = self.canvas.getCoordinateTransform().toMapCoordinates( e.x(), e.y() )
+    def canvasReleaseEvent(self, e):
+        point = self.canvas.getCoordinateTransform().toMapCoordinates(e.x(), e.y())
 
-        if ( e.button() == Qt.RightButton ):
-            if ( self.mRightMouseClicked ):
+        if (e.button() == Qt.RightButton):
+            if (self.mRightMouseClicked):
                 self.restart()
             else:
                 self.mRightMouseClicked = True
-                if (len(self.mPoints)>=3):
+                if (len(self.mPoints) >= 3):
                     self.emit(SIGNAL("finished()"))
                 else:
                     self.restart()
 
-        elif ( e.button() == Qt.LeftButton ):
-            self.addPoint( point )
+        elif (e.button() == Qt.LeftButton):
+            self.addPoint(point)
             #mDialog.show();
 
 
-    def addPoint( self,point ):
+    def addPoint(self, point):
         #QgsDebugMsg( "point=" + point.toString() );
 
         #if ( mWrongProjectProjection ):
@@ -140,10 +140,10 @@ class AreaMapTool (QgsMapTool):
         #    mWrongProjectProjection = false;
 
         # don't add points with the same coordinates
-        if ( len(self.mPoints) > 0 and point == self.mPoints[-1] ):
+        if (len(self.mPoints) > 0 and point == self.mPoints[-1]):
             return
 
-        self.mPoints.append( point )
+        self.mPoints.append(point)
 
-        self.mRubberBand.addPoint( point )
+        self.mRubberBand.addPoint(point)
         #mDialog.addPoint( point );

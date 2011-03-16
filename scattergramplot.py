@@ -26,26 +26,26 @@ from PyQt4.Qwt5 import *
 
 class MyMarker(QWidget):
     """class to draw a symbol on the graph. Much faster than using QwtMarker"""
-    def __init__(self,qwtPlot):
-        QWidget.__init__(self,qwtPlot)
-        self.qwtPlot=qwtPlot
+    def __init__(self, qwtPlot):
+        QWidget.__init__(self, qwtPlot)
+        self.qwtPlot = qwtPlot
 
-    def setSymbol(self,symbol):
-        self.symbol=symbol
+    def setSymbol(self, symbol):
+        self.symbol = symbol
         self.resize(symbol.size())
 
-    def setValue(self,x,y):
-        pos0=self.qwtPlot.canvas().pos()
-        self.move(self.qwtPlot.transform(QwtPlot.xBottom,x)+pos0.x(),
-                  self.qwtPlot.transform(QwtPlot.yLeft,y)+pos0.y())
+    def setValue(self, x, y):
+        pos0 = self.qwtPlot.canvas().pos()
+        self.move(self.qwtPlot.transform(QwtPlot.xBottom, x) + pos0.x(),
+                  self.qwtPlot.transform(QwtPlot.yLeft, y) + pos0.y())
 
 
-    def paintEvent(self,paintevent):
-        if self.symbol!=None:
-            p=QPainter(self)
-            p.setPen( Qt.blue );
-            size=self.symbol.size()
-            self.symbol.draw(p,size.width()/2,size.height()/2)  ##self.pos())
+    def paintEvent(self, paintevent):
+        if self.symbol != None:
+            p = QPainter(self)
+            p.setPen(Qt.blue);
+            size = self.symbol.size()
+            self.symbol.draw(p, size.width() / 2, size.height() / 2)  ##self.pos())
 
 
 class ScattergramPlot(QwtPlot):
@@ -54,14 +54,14 @@ class ScattergramPlot(QwtPlot):
         QwtPlot.__init__(self, *args)
 
         self.setCanvasBackground(Qt.white)
-        self.curve=[None,None]
+        self.curve = [None, None]
         self.curve[0] = QwtPlotCurve()
         self.curve[0].setStyle(QwtPlotCurve.Dots)
         self.curve[0].attach(self)
 
         self.curve[1] = QwtPlotCurve()
         self.curve[1].setStyle(QwtPlotCurve.Dots)
-        self.curve[1].setPen(QPen(QColor(11,239,0)))
+        self.curve[1].setPen(QPen(QColor(11, 239, 0)))
         self.curve[1].attach(self)
 
         self.picker = QwtPlotPicker(
@@ -89,7 +89,7 @@ class ScattergramPlot(QwtPlot):
         #              QPen(Qt.red, 1),
         #              QSize(5, 5)))
         #self.pointer.attach(self)
-        self.pointer=MyMarker(self)   ##QLabel("x",self)
+        self.pointer = MyMarker(self)   ##QLabel("x",self)
         self.pointer.setSymbol(
             QwtSymbol(QwtSymbol.Ellipse,
                       QBrush(Qt.NoBrush),
@@ -99,13 +99,13 @@ class ScattergramPlot(QwtPlot):
 
 
 
-    def setData(self,curvenumber,valuesX,valuesY):
-        self.curve[curvenumber].setData(valuesX,valuesY)
+    def setData(self, curvenumber, valuesX, valuesY):
+        self.curve[curvenumber].setData(valuesX, valuesY)
         self.replot()
         self.zoomer.setZoomBase() # reinitialize the scale
 
-    def resetCurve(self,curvenumber):
-        self.curve[curvenumber].setData([],[])
+    def resetCurve(self, curvenumber):
+        self.curve[curvenumber].setData([], [])
         self.replot()
         self.zoomer.setZoomBase() # reinitialize the scale
 

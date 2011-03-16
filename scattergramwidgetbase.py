@@ -13,7 +13,7 @@ from PyQt4 import QtCore, QtGui
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(QtCore.QSize(QtCore.QRect(0,0,613,423).size()).expandedTo(Dialog.minimumSizeHint()))
+        Dialog.resize(QtCore.QSize(QtCore.QRect(0, 0, 613, 423).size()).expandedTo(Dialog.minimumSizeHint()))
 
         self.vboxlayout = QtGui.QVBoxLayout(Dialog)
         self.vboxlayout.setObjectName("vboxlayout")
@@ -27,7 +27,7 @@ class Ui_Dialog(object):
 
         self.bandX = QtGui.QComboBox(Dialog)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.bandX.sizePolicy().hasHeightForWidth())
@@ -41,7 +41,7 @@ class Ui_Dialog(object):
 
         self.bandY = QtGui.QComboBox(Dialog)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Fixed)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.bandY.sizePolicy().hasHeightForWidth())
@@ -52,7 +52,7 @@ class Ui_Dialog(object):
 
         self.qwtPlot = ScattergramPlot(Dialog)
 
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.qwtPlot.sizePolicy().hasHeightForWidth())
@@ -90,7 +90,7 @@ class Ui_Dialog(object):
         self.identifybutton.setObjectName("identifybutton")
         self.hboxlayout1.addWidget(self.identifybutton)
 
-        spacerItem = QtGui.QSpacerItem(200,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacerItem = QtGui.QSpacerItem(200, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hboxlayout1.addItem(spacerItem)
 
         self.label_3 = QtGui.QLabel(Dialog)
@@ -101,11 +101,11 @@ class Ui_Dialog(object):
         self.npoints.setMinimum(1000)
         self.npoints.setMaximum(1000000)
         self.npoints.setSingleStep(5000)
-        self.npoints.setProperty("value",QtCore.QVariant(10000))
+        self.npoints.setProperty("value", QtCore.QVariant(10000))
         self.npoints.setObjectName("npoints")
         self.hboxlayout1.addWidget(self.npoints)
 
-        spacerItem1 = QtGui.QSpacerItem(361,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
+        spacerItem1 = QtGui.QSpacerItem(361, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hboxlayout1.addItem(spacerItem1)
 
         self.closeButton = QtGui.QPushButton(Dialog)
@@ -127,9 +127,9 @@ class Ui_Dialog(object):
         self.areabutton.setToolTip(QtGui.QApplication.translate("Dialog", "Select an area on the map to plot the scattergram of the inner points", None, QtGui.QApplication.UnicodeUTF8))
         self.areabutton.setText(QtGui.QApplication.translate("Dialog", "A", None, QtGui.QApplication.UnicodeUTF8))
         self.zoombutton.setToolTip(QtGui.QApplication.translate("Dialog", "Zoom in/out the scattergrammm", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoombutton.setText(QtGui.QApplication.translate("Dialog", "->", None, QtGui.QApplication.UnicodeUTF8))
+        self.zoombutton.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.identifybutton.setToolTip(QtGui.QApplication.translate("Dialog", "Identify a scattergram point on the map canvas", None, QtGui.QApplication.UnicodeUTF8))
-        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
+        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "->", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Sampled pixels:", None, QtGui.QApplication.UnicodeUTF8))
         self.closeButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

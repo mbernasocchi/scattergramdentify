@@ -47,7 +47,7 @@ class Scattergram:
 ###Qt.AllDockWidgetAreas
   def unload(self):
     # remove the plugin menu item and icon
-    self.iface.removePluginMenu("&Analyses",self.action)
+    self.iface.removePluginMenu("&Analyses", self.action)
     self.iface.removeToolBarIcon(self.action)
     try:
       self.scattergramwidget.close()
@@ -56,5 +56,5 @@ class Scattergram:
 
   def run(self):
     # create the widget to display information
-    self.scattergramwidget = ScattergramWidget(self.iface,self.canvas)
+    self.scattergramwidget = ScattergramWidget(self.iface, self.canvas)
     self.scattergramwidget.show()
