@@ -96,6 +96,14 @@ class ScattergramPlot(QwtPlot):
                       QPen(Qt.red, 1),
                       QSize(5, 5)))
         self.pointer.hide()
+        
+        self.identifyPointer = MyMarker(self)   ##QLabel("x",self)
+        self.identifyPointer.setSymbol(
+            QwtSymbol(QwtSymbol.XCross,
+                      QBrush(Qt.NoBrush),
+                      QPen(Qt.blue, 1),
+                      QSize(5, 5)))
+        self.identifyPointer.hide()
 
 
 

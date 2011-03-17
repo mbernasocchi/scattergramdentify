@@ -205,8 +205,7 @@ class ScattergramWidget(QDialog, Ui_Dialog):
                     valuesX.append(vx) # append only if getValueFromIdentify works for both layers
                     valuesY.append(vy)
                     #map plot coords to map coords
-                    #TODO not use INT
-                    coords[int(vx),int(vy)] = point
+                    coords[vx, vy] = point
                 except:
                     pass
                 
@@ -246,13 +245,10 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         except:
             self.qwtPlot.pointer.hide()
 
-
-
     def getLayerAndBand(self, index):
         ilayer, iband = self.comboArray[index]
         layer = self.canvas.layer(ilayer)
         return layer, iband
-
 
     def areatoolEnabled(self, enable):
 
@@ -277,34 +273,50 @@ class ScattergramWidget(QDialog, Ui_Dialog):
                 pass
 
     def showPointOnMapEnabled(self, enabled):
+        """check if showPointOnMap is Enabled"""
         if (enabled):
             self.showPointOnMapLayer = QgsVectorLayer("Point?crs=epsg:4326", "Scattergram point location", "memory")
             fet = QgsFeature()
             fet.setGeometry(QgsGeometry.fromPoint(QgsPoint(0,0)))
             self.showPointOnMapLayer.dataProvider().addFeatures([ fet ])
             
+            #symbol for qgis layer
             renderer = self.showPointOnMapLayer.rendererV2()
-            symbol = renderer.symbols()[0]
-            color = QColor('white')
-            symbol.setColor(color)
+#            symbolLayer = renderer.symbol().symbolLayer(0)
+            symbol = QgsMarkerSymbolV2()
+            symbol.setColor(QColor('white'))
+            renderer.setSymbol(symbol)
             
             QgsMapLayerRegistry.instance().addMapLayer(self.showPointOnMapLayer)
             QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
         else:
             QObject.disconnect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
             QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
+            self.qwtPlot.identifyPointer.hide()
 
-    def showPointOnMap(self, pos):
+    def showPointOnMap(self, click):
+        """shows the clicked point on the plot on the map canvas"""
+        curve = self.qwtPlot.curve[0]
+        clickPx = self.qwtPlot.picker.transform(click)
+        
         try:
-            point = self.coords[int(pos.x()), int(pos.y())]
+            closestPointIndex = curve.closestPoint(clickPx)[0]
+            x = curve.data().x(closestPointIndex)
+            y = curve.data().y(closestPointIndex)
+            self.qwtPlot.identifyPointer.setValue(x, y)
+            self.qwtPlot.identifyPointer.show()
+            point = self.coords[x, y]
             geom = QgsGeometry.fromPoint(QgsPoint(point.x(), point.y()))
             self.showPointOnMapLayer.dataProvider().changeGeometryValues({1:geom})
             self.showPointOnMapLayer.updateExtents() 
             self.showPointOnMapLayer.triggerRepaint()
         except:
-            print "problem locating: "+ str(pos)
-        
+            print "Problem locating: "+ str(click.x()) + ", "+ str(click.y())
+            print "Try using Zoom to get closer to the point you want to select"
+            self.qwtPlot.identifyPointer.hide()
+            
     def done(self, i):
         self.areatoolEnabled(False)  # remove the area
         self.plottasks = []            # no more task to plot
+        QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
         QDialog.done(self, i)

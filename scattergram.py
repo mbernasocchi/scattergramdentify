@@ -51,6 +51,7 @@ class Scattergram:
     self.iface.removeToolBarIcon(self.action)
     try:
       self.scattergramwidget.close()
+      QgsMapLayerRegistry.instance().removeMapLayer(self.scattergramwidget.showPointOnMapLayer.id())
     except:
       pass
 
