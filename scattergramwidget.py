@@ -318,5 +318,8 @@ class ScattergramWidget(QDialog, Ui_Dialog):
     def done(self, i):
         self.areatoolEnabled(False)  # remove the area
         self.plottasks = []            # no more task to plot
-        QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
+        try:
+            QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
+        except:
+            pass
         QDialog.done(self, i)
