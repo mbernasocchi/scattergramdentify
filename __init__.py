@@ -27,10 +27,10 @@ def description():
   return "Plot the scattergram of two raster layers" 
 
 def version(): 
-  return "Version 0.2.2" 
+  return "Version 0.3" 
 
 def qgisMinimumVersion():
-  return '1.0'
+  return '1.7'
 
 def authorName():
   return 'Ghislain Picard'
