@@ -126,10 +126,15 @@ class Ui_Dialog(object):
         self.trackbutton.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
         self.areabutton.setToolTip(QtGui.QApplication.translate("Dialog", "Select an area on the map to plot the scattergram of the inner points", None, QtGui.QApplication.UnicodeUTF8))
         self.areabutton.setText(QtGui.QApplication.translate("Dialog", "A", None, QtGui.QApplication.UnicodeUTF8))
-        self.zoombutton.setToolTip(QtGui.QApplication.translate("Dialog", "Zoom in/out the scattergrammm", None, QtGui.QApplication.UnicodeUTF8))
+        self.zoombutton.setToolTip(QtGui.QApplication.translate("Dialog", "Zoom in/out the scattergram", None, QtGui.QApplication.UnicodeUTF8))
         self.zoombutton.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.identifybutton.setToolTip(QtGui.QApplication.translate("Dialog", "Identify scattergram point(s) on the map canvas (click/click&drag)", None, QtGui.QApplication.UnicodeUTF8))
-        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "-ID-", None, QtGui.QApplication.UnicodeUTF8))
+        self.identifybutton.setToolTip(QtGui.QApplication.translate("Dialog", "Show selected scattergram point(s) on the map\
+        \nSingle point selection:\tLeftMouse\
+        \nPolygonal selection:\
+        \n - start polygon:\tshift+LeftMouse \
+        \n - add point:\t\tshift+RightMouse\
+        \n - end polygon:\tshift+LeftMouse", None, QtGui.QApplication.UnicodeUTF8))
+        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "PlotToMap", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Sampled pixels:", None, QtGui.QApplication.UnicodeUTF8))
         self.closeButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -276,7 +276,6 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         """check if showPointOnMap is Enabled"""
         if (enabled):
             self.showPointOnMapLayer = QgsVectorLayer("Point?crs=epsg:4326", "Scattergram point location", "memory")
-            
             #symbol for qgis layer
             renderer = self.showPointOnMapLayer.rendererV2()
 #            symbolLayer = renderer.symbol().symbolLayer(0)
@@ -285,66 +284,81 @@ class ScattergramWidget(QDialog, Ui_Dialog):
             renderer.setSymbol(symbol)
             
             QgsMapLayerRegistry.instance().addMapLayer(self.showPointOnMapLayer)
-            QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
-            #TODO use this for polygon selection 
-            #QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
+            QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
+            QObject.connect(self.qwtPlot.polygonPicker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
+            
+            self.qwtPlot.polygonPicker.setRubberBand(QwtPicker.PolygonRubberBand)
             
         else:
             QObject.disconnect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
+            QObject.disconnect(self.qwtPlot.polygonPicker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
+            self.qwtPlot.polygonPicker.setRubberBand(QwtPicker.NoRubberBand)
             try:
                 QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
             except:
                 pass
             self.qwtPlot.identifyPointer.hide()
-            self.qwtPlot.identifyRect.hide()
+            self.qwtPlot.identifyPolygon.hide()
             self.qwtPlot.replot()
-
-    def showPointsOnMap(self, rect):
-        """shows the clicked point on the plot on the map canvas"""
+            
+    def clearPointsOnMap(self):
+        """remove all points from the map canvas layer and removes the identify pointers"""
         self.qwtPlot.identifyPointer.hide()
-        self.qwtPlot.identifyRect.hide()
+        self.qwtPlot.identifyPolygon.hide()
         self.qwtPlot.replot()
         
-        provider = self.showPointOnMapLayer.dataProvider()
-        
         #delete everything from layer
+        provider = self.showPointOnMapLayer.dataProvider()
         provider.select()
         feat = QgsFeature()
         fids = []
         while provider.nextFeature(feat):
             fids.append(feat.id())
         provider.deleteFeatures(fids)
+
+    def showPointsOnMap(self, poly):
+        """shows the selected points on the plot on the map canvas"""
+        self.clearPointsOnMap()
         
-        #rect has a width and height, it means is wasn't a single click
-        if rect.width() and rect.height():
-            self.qwtPlot.identifyRect.setRect(rect)
-            self.qwtPlot.identifyRect.show()
-            self.qwtPlot.replot()
+        self.qwtPlot.identifyPolygon.setGeom(poly)
+        self.qwtPlot.identifyPolygon.show()
+        self.qwtPlot.replot()
+        
+        #create the new points
+        curve = self.qwtPlot.curve[0]
+        #data is in plot coords
+        data = curve.data()
+        
+        #poly is in pixel coords, converting to plot coords
+        points = []
+        for i in range(0, poly.size()):
+            point = self.qwtPlot.picker.invTransform(poly.at(i))
+            points.append(point)
+        
+        poly = QPolygonF(points)
+        bbox = poly.boundingRect()
+        
+        features = []
+        for i in range(0, data.size()):
+            x = data.x(i)
+            y = data.y(i)
             
-            #create the new points
-            curve = self.qwtPlot.curve[0]
-            data = curve.data()
-            features = []
-            for i in range(0, data.size()):
-                x = data.x(i)
-                y = data.y(i)
-                if x >= rect.x() and x <= rect.x() + rect.width() and \
-                   y >= rect.y() and y <= rect.y() + rect.height():
+            if x >= bbox.x() and x <= bbox.x() + bbox.width() and \
+               y >= bbox.y() and y <= bbox.y() + bbox.height():
+                if poly.containsPoint(QPointF(x,y), 0):
                     #create points
                     feat = QgsFeature()
                     feat.setGeometry(QgsGeometry.fromPoint(self.coords[x, y]))
                     features.append(feat)
-                    
-            provider.addFeatures( features )
-            self.showPointOnMapLayer.updateExtents() 
-            self.showPointOnMapLayer.triggerRepaint()
+                
+        self.showPointOnMapLayer.dataProvider().addFeatures( features )
+        self.showPointOnMapLayer.updateExtents() 
+        self.showPointOnMapLayer.triggerRepaint()
         
-        #rect has no width and height, it was a single click
-        else:
-            self.showPointOnMap(QPointF(rect.x(), rect.y()))
             
     def showPointOnMap(self, click):
         """shows the clicked point on the plot on the map canvas"""
+        self.clearPointsOnMap()
         curve = self.qwtPlot.curve[0]
         clickPx = self.qwtPlot.picker.transform(click)
         

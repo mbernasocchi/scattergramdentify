@@ -64,16 +64,34 @@ class ScattergramPlot(QwtPlot):
         pen = QPen(Qt.red)
         self.curve[1].setPen(pen)
         self.curve[1].attach(self)
-
+        
+        #point picker
         self.picker = QwtPlotPicker(
             QwtPlot.xBottom,
             QwtPlot.yLeft,
-            QwtPicker.RectSelection | QwtPicker.DragSelection,
-            QwtPlotPicker.RectRubberBand,
+            QwtPicker.PointSelection,
+            QwtPlotPicker.CrossRubberBand,
             QwtPicker.AlwaysOn,
             self.canvas())
         self.picker.setRubberBandPen(QPen(Qt.blue))
         self.picker.setTrackerPen(QPen(Qt.blue))
+        
+        #polygon picker used by identify
+        self.polygonPicker = QwtPlotPicker(
+            QwtPlot.xBottom,
+            QwtPlot.yLeft,
+            QwtPicker.PolygonSelection | QwtPicker.DragSelection,
+            QwtPlotPicker.NoRubberBand,
+            QwtPicker.AlwaysOn,
+            self.canvas())
+        self.polygonPicker.setRubberBandPen(QPen(Qt.blue))
+        self.polygonPicker.setTrackerPen(QPen(Qt.blue))
+        #make this picker react to the sequence:
+        #start polygon:     shift+leftMouse
+        #add point:         shift+rightMouse
+        #end polygon:       shift+leftMouse
+        self.polygonPicker.setMousePattern(QwtEventPattern.MouseSelect1, Qt.LeftButton, Qt.ShiftModifier)
+        self.polygonPicker.setMousePattern(QwtEventPattern.MouseSelect2, Qt.RightButton, Qt.ShiftModifier)
 
         self.zoomer = QwtPlotZoomer(
             QwtPlot.xBottom,
@@ -82,14 +100,8 @@ class ScattergramPlot(QwtPlot):
             QwtPicker.AlwaysOff,
             self.canvas())
         self.zoomer.setRubberBandPen(QPen(Qt.darkBlue))
-        self.zoomEnabled(False)
-        #self.pointer = QwtPlotMarker()
-        #self.pointer.setSymbol(
-        #    QwtSymbol(QwtSymbol.Ellipse,
-        #              QBrush(Qt.NoBrush),
-        #              QPen(Qt.red, 1),
-        #              QSize(5, 5)))
-        #self.pointer.attach(self)
+        
+        #pointer used by tracker
         self.pointer = MyMarker(self)   ##QLabel("x",self)
         self.pointer.setSymbol(
             QwtSymbol(QwtSymbol.Ellipse,
@@ -98,16 +110,23 @@ class ScattergramPlot(QwtPlot):
                       QSize(5, 5)))
         self.pointer.hide()
         
+        #pointer used by identify
         self.identifyPointer = MyMarker(self)   ##QLabel("x",self)
         self.identifyPointer.setSymbol(
             QwtSymbol(QwtSymbol.XCross,
                       QBrush(Qt.NoBrush),
-                      QPen(Qt.blue, 1),
+                      QPen(Qt.blue, 2),
                       QSize(5, 5)))
         self.identifyPointer.hide()
         
-        self.identifyRect = IdentifyItem(self, QRectF(), 'Rect', QPen(), QBrush())
-        self.identifyRect.hide()
+        #polygon item that stays on the canvas until hidden
+        self.identifyPolygon = IdentifyItem(self,
+                                             QPolygonF(),
+                                             'Polygon',
+                                             QBrush(Qt.NoBrush),
+                                             QPen(Qt.blue, 1))
+        self.identifyPolygon.hide()
+        self.zoomEnabled(False)
 
     def setData(self, curvenumber, valuesX, valuesY):
         self.curve[curvenumber].setData(valuesX, valuesY)
@@ -122,30 +141,31 @@ class ScattergramPlot(QwtPlot):
     def zoomEnabled(self, on):
         self.zoomer.setEnabled(on)
         self.zoomer.zoom(0)
-
-#        if on:
-#            self.picker.setRubberBand(QwtPicker.NoRubberBand)
-#        else:
-#            self.picker.setRubberBand(QwtPicker.CrossRubberBand)
+        self.identifyPolygon.hide()
+        self.replot()
+        if on:
+            self.picker.setRubberBand(QwtPicker.NoRubberBand)
+        else:
+            self.picker.setRubberBand(QwtPicker.CrossRubberBand)
 
 class IdentifyItem(QwtPlotItem):
-    def __init__(self, plot, rect, type, pen, brush):
+    def __init__(self, plot, geom, type, brush, pen):
         QwtPlotItem.__init__(self)
         self.setZ(0.0)
         self.type = type
         self.pen = pen
         self.brush = brush
-        self.rect = rect
+        self.geom = geom
         self.attach(plot)
     
     def rtti(self):
         return QwtPlotItemRtti_PlotUserItem
     
-    def setRect(self, rect):
-        if ( self.rect != rect ):
-            self.rect = rect
+    def setGeom(self, geom):
+        if ( self.geom != geom ):
+            self.geom = geom
             self.itemChanged()
-            
+    
     def setPen(self, pen):
         if ( pen != self.pen ):
             self.pen = pen
@@ -156,20 +176,14 @@ class IdentifyItem(QwtPlotItem):
             self.brush = brush
             self.itemChanged()
         
-    def boundingRect(self):
-        return self.rect
-    
     def draw(self, painter, xMap, yMap, rect):
         if ( rect.isValid() ):
-            lt = QPoint(xMap.transform(self.rect.left()), yMap.transform(self.rect.top()))
-            rb = QPoint(xMap.transform(self.rect.right()), yMap.transform(self.rect.bottom()))
-            r = QRect(lt, rb)
-            
+            #r = self.poly.boundingRect()
             painter.setPen(self.pen)
             painter.setBrush(self.brush)
             if ( self.type == 'Polygon' ):
-                QwtPainter.drawPolygon(painter, r)
+                QwtPainter.drawPolygon(painter, self.geom)
             elif ( self.type == 'Rect' ):
-                QwtPainter.drawRect(painter, r)
+                QwtPainter.drawRect(painter, self.geom)
             else:
                 raise TypeError("Invalid IdentifyItem.type: "+self.type )
