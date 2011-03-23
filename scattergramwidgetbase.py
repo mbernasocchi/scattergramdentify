@@ -128,8 +128,8 @@ class Ui_Dialog(object):
         self.areabutton.setText(QtGui.QApplication.translate("Dialog", "A", None, QtGui.QApplication.UnicodeUTF8))
         self.zoombutton.setToolTip(QtGui.QApplication.translate("Dialog", "Zoom in/out the scattergrammm", None, QtGui.QApplication.UnicodeUTF8))
         self.zoombutton.setText(QtGui.QApplication.translate("Dialog", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.identifybutton.setToolTip(QtGui.QApplication.translate("Dialog", "Identify a scattergram point on the map canvas", None, QtGui.QApplication.UnicodeUTF8))
-        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "->", None, QtGui.QApplication.UnicodeUTF8))
+        self.identifybutton.setToolTip(QtGui.QApplication.translate("Dialog", "Identify scattergram point(s) on the map canvas (click/click&drag)", None, QtGui.QApplication.UnicodeUTF8))
+        self.identifybutton.setText(QtGui.QApplication.translate("Dialog", "-ID-", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("Dialog", "Sampled pixels:", None, QtGui.QApplication.UnicodeUTF8))
         self.closeButton.setText(QtGui.QApplication.translate("Dialog", "Close", None, QtGui.QApplication.UnicodeUTF8))
 

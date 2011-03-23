@@ -105,8 +105,9 @@ class ScattergramPlot(QwtPlot):
                       QPen(Qt.blue, 1),
                       QSize(5, 5)))
         self.identifyPointer.hide()
-
-
+        
+        self.identifyRect = IdentifyItem(self, QRectF(), 'Rect', QPen(), QBrush())
+        self.identifyRect.hide()
 
     def setData(self, curvenumber, valuesX, valuesY):
         self.curve[curvenumber].setData(valuesX, valuesY)
@@ -119,7 +120,6 @@ class ScattergramPlot(QwtPlot):
         self.zoomer.setZoomBase() # reinitialize the scale
 
     def zoomEnabled(self, on):
-
         self.zoomer.setEnabled(on)
         self.zoomer.zoom(0)
 
@@ -128,3 +128,48 @@ class ScattergramPlot(QwtPlot):
 #        else:
 #            self.picker.setRubberBand(QwtPicker.CrossRubberBand)
 
+class IdentifyItem(QwtPlotItem):
+    def __init__(self, plot, rect, type, pen, brush):
+        QwtPlotItem.__init__(self)
+        self.setZ(0.0)
+        self.type = type
+        self.pen = pen
+        self.brush = brush
+        self.rect = rect
+        self.attach(plot)
+    
+    def rtti(self):
+        return QwtPlotItemRtti_PlotUserItem
+    
+    def setRect(self, rect):
+        if ( self.rect != rect ):
+            self.rect = rect
+            self.itemChanged()
+            
+    def setPen(self, pen):
+        if ( pen != self.pen ):
+            self.pen = pen
+            self.itemChanged()
+
+    def setBrush(self, brush):
+        if ( brush != self.brush ):
+            self.brush = brush
+            self.itemChanged()
+        
+    def boundingRect(self):
+        return self.rect
+    
+    def draw(self, painter, xMap, yMap, rect):
+        if ( rect.isValid() ):
+            lt = QPoint(xMap.transform(self.rect.left()), yMap.transform(self.rect.top()))
+            rb = QPoint(xMap.transform(self.rect.right()), yMap.transform(self.rect.bottom()))
+            r = QRect(lt, rb)
+            
+            painter.setPen(self.pen)
+            painter.setBrush(self.brush)
+            if ( self.type == 'Polygon' ):
+                QwtPainter.drawPolygon(painter, r)
+            elif ( self.type == 'Rect' ):
+                QwtPainter.drawRect(painter, r)
+            else:
+                raise TypeError("Invalid IdentifyItem.type: "+self.type )

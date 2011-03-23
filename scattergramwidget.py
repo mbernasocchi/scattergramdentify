@@ -288,6 +288,7 @@ class ScattergramWidget(QDialog, Ui_Dialog):
             QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
             #TODO use this for polygon selection 
             #QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
+            
         else:
             QObject.disconnect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
             try:
@@ -295,9 +296,15 @@ class ScattergramWidget(QDialog, Ui_Dialog):
             except:
                 pass
             self.qwtPlot.identifyPointer.hide()
+            self.qwtPlot.identifyRect.hide()
+            self.qwtPlot.replot()
 
     def showPointsOnMap(self, rect):
         """shows the clicked point on the plot on the map canvas"""
+        self.qwtPlot.identifyPointer.hide()
+        self.qwtPlot.identifyRect.hide()
+        self.qwtPlot.replot()
+        
         provider = self.showPointOnMapLayer.dataProvider()
         
         #delete everything from layer
@@ -310,6 +317,10 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         
         #rect has a width and height, it means is wasn't a single click
         if rect.width() and rect.height():
+            self.qwtPlot.identifyRect.setRect(rect)
+            self.qwtPlot.identifyRect.show()
+            self.qwtPlot.replot()
+            
             #create the new points
             curve = self.qwtPlot.curve[0]
             data = curve.data()
