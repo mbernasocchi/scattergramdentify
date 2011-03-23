@@ -61,14 +61,15 @@ class ScattergramPlot(QwtPlot):
 
         self.curve[1] = QwtPlotCurve()
         self.curve[1].setStyle(QwtPlotCurve.Dots)
-        self.curve[1].setPen(QPen(QColor(11, 239, 0)))
+        pen = QPen(Qt.red)
+        self.curve[1].setPen(pen)
         self.curve[1].attach(self)
 
         self.picker = QwtPlotPicker(
             QwtPlot.xBottom,
             QwtPlot.yLeft,
-            QwtPicker.PointSelection | QwtPicker.DragSelection,
-            QwtPlotPicker.CrossRubberBand,
+            QwtPicker.RectSelection | QwtPicker.DragSelection,
+            QwtPlotPicker.RectRubberBand,
             QwtPicker.AlwaysOn,
             self.canvas())
         self.picker.setRubberBandPen(QPen(Qt.blue))
@@ -117,15 +118,13 @@ class ScattergramPlot(QwtPlot):
         self.replot()
         self.zoomer.setZoomBase() # reinitialize the scale
 
-
-
     def zoomEnabled(self, on):
 
         self.zoomer.setEnabled(on)
         self.zoomer.zoom(0)
 
-        if on:
-            self.picker.setRubberBand(QwtPicker.NoRubberBand)
-        else:
-            self.picker.setRubberBand(QwtPicker.CrossRubberBand)
+#        if on:
+#            self.picker.setRubberBand(QwtPicker.NoRubberBand)
+#        else:
+#            self.picker.setRubberBand(QwtPicker.CrossRubberBand)
 

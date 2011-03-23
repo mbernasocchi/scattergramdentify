@@ -276,9 +276,6 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         """check if showPointOnMap is Enabled"""
         if (enabled):
             self.showPointOnMapLayer = QgsVectorLayer("Point?crs=epsg:4326", "Scattergram point location", "memory")
-            fet = QgsFeature()
-            fet.setGeometry(QgsGeometry.fromPoint(QgsPoint(0,0)))
-            self.showPointOnMapLayer.dataProvider().addFeatures([ fet ])
             
             #symbol for qgis layer
             renderer = self.showPointOnMapLayer.rendererV2()
@@ -288,12 +285,53 @@ class ScattergramWidget(QDialog, Ui_Dialog):
             renderer.setSymbol(symbol)
             
             QgsMapLayerRegistry.instance().addMapLayer(self.showPointOnMapLayer)
-            QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
+            QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
+            #TODO use this for polygon selection 
+            #QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
         else:
-            QObject.disconnect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
-            QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
+            QObject.disconnect(self.qwtPlot.picker, SIGNAL("selected (QwtDoubleRect)"), self.showPointsOnMap)
+            try:
+                QgsMapLayerRegistry.instance().removeMapLayer(self.showPointOnMapLayer.id())
+            except:
+                pass
             self.qwtPlot.identifyPointer.hide()
 
+    def showPointsOnMap(self, rect):
+        """shows the clicked point on the plot on the map canvas"""
+        provider = self.showPointOnMapLayer.dataProvider()
+        
+        #delete everything from layer
+        provider.select()
+        feat = QgsFeature()
+        fids = []
+        while provider.nextFeature(feat):
+            fids.append(feat.id())
+        provider.deleteFeatures(fids)
+        
+        #rect has a width and height, it means is wasn't a single click
+        if rect.width() and rect.height():
+            #create the new points
+            curve = self.qwtPlot.curve[0]
+            data = curve.data()
+            features = []
+            for i in range(0, data.size()):
+                x = data.x(i)
+                y = data.y(i)
+                if x >= rect.x() and x <= rect.x() + rect.width() and \
+                   y >= rect.y() and y <= rect.y() + rect.height():
+                    #create points
+                    feat = QgsFeature()
+                    feat.setGeometry(QgsGeometry.fromPoint(self.coords[x, y]))
+                    features.append(feat)
+                    
+            provider.addFeatures( features )
+            self.showPointOnMapLayer.updateExtents() 
+            self.showPointOnMapLayer.triggerRepaint()
+        
+        #rect has no width and height, it was a single click
+        else:
+            self.showPointOnMap(QPointF(rect.x(), rect.y()))
+            
     def showPointOnMap(self, click):
         """shows the clicked point on the plot on the map canvas"""
         curve = self.qwtPlot.curve[0]
@@ -306,8 +344,10 @@ class ScattergramWidget(QDialog, Ui_Dialog):
             self.qwtPlot.identifyPointer.setValue(x, y)
             self.qwtPlot.identifyPointer.show()
             point = self.coords[x, y]
-            geom = QgsGeometry.fromPoint(QgsPoint(point.x(), point.y()))
-            self.showPointOnMapLayer.dataProvider().changeGeometryValues({1:geom})
+            
+            fet = QgsFeature()
+            fet.setGeometry(QgsGeometry.fromPoint(self.coords[x, y]))
+            self.showPointOnMapLayer.dataProvider().addFeatures([ fet ])
             self.showPointOnMapLayer.updateExtents() 
             self.showPointOnMapLayer.triggerRepaint()
         except:
