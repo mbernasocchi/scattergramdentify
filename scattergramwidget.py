@@ -363,6 +363,8 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         clickPx = self.qwtPlot.picker.transform(click)
         
         try:
+            #TODO implement a more efficient closestPoint algorithm
+            #see http://qwt.sourceforge.net/class_qwt_plot_curve.html#47620cb8ca3940f7007f8fb990d614f6
             closestPointIndex = curve.closestPoint(clickPx)[0]
             x = curve.data().x(closestPointIndex)
             y = curve.data().y(closestPointIndex)
