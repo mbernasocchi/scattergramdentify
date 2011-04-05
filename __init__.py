@@ -27,7 +27,7 @@ def description():
   return "Plot the scattergram of two raster layers. Show scattergramm points on the map"
 
 def version(): 
-  return "Version 0.3" 
+  return "Version 0.3.1" 
 
 def qgisMinimumVersion():
   return '1.7'

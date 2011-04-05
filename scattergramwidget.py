@@ -277,12 +277,14 @@ class ScattergramWidget(QDialog, Ui_Dialog):
         if (enabled):
             self.showPointOnMapLayer = QgsVectorLayer("Point?crs=epsg:4326", "Scattergram point location", "memory")
             #symbol for qgis layer
-            renderer = self.showPointOnMapLayer.rendererV2()
-#            symbolLayer = renderer.symbol().symbolLayer(0)
-            symbol = QgsMarkerSymbolV2()
-            symbol.setColor(QColor('white'))
-            renderer.setSymbol(symbol)
+            #TODO use style
+            #import os.path
+            #style_path = os.path.join( os.path.dirname(__file__), "point.qml" )
+            #(errorMsg, result) = vectorLayer.loadNamedStyle( style_path )
             
+            symbol = QgsMarkerSymbolV2.createSimple( { 'color' : '0,255,128' } )
+            self.showPointOnMapLayer.setRendererV2( QgsSingleSymbolRendererV2( symbol ) )
+
             QgsMapLayerRegistry.instance().addMapLayer(self.showPointOnMapLayer)
             QObject.connect(self.qwtPlot.picker, SIGNAL("selected (QwtDoublePoint)"), self.showPointOnMap)
             QObject.connect(self.qwtPlot.polygonPicker, SIGNAL("selected (QwtPolygon)"), self.showPointsOnMap)
